@@ -1,25 +1,35 @@
 name: GitOps Pipeline with ArgoCD
-on :
-  push:
-    branches:
-      -main
-env:
-  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+on: 
+    push:
+        branches: 
+            - main
+        # paths-ignore:
+        #     - 'manifest/**' # ignore changes to manifest files to prevent loop
+env: 
+    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    # DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    # DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    # ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+    # ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+    # ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+    # GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+    # GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+    
 jobs:
     build:
         runs-on: ubuntu-latest
-        steps:
+        steps: 
             - name: Checkout code
               uses: actions/checkout@v3
               with:
                 token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
                 fetch-depth: 0
-
+                
             - name: Set up NodeJS
               uses: actions/setup-node@v3
-              with:
+              with: 
                 node-version: '14'
 
-            # - name: Install NodeJS dependencies
-            #   run: npm install
+            - name: Install NodeJS dependencies
+              run: npm install
