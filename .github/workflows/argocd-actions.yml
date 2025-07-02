@@ -8,8 +8,8 @@ on:
         #     - 'manifest/**' # ignore changes to manifest files to prevent loop
 env: 
     PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-    # DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-    # DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     # ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
     # ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
     # ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
@@ -33,3 +33,15 @@ jobs:
 
             - name: Install NodeJS dependencies
               run: npm install
+            
+            - name: Build Docker Image
+              run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ github.sha }} .
+
+            - name: Scan Docker Image with Trivy
+              run: docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ github.sha }}
+
+            - name: Log in to DockerHub
+              run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            
+            - name: Push Docker image to DockerHub
+              run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ github.sha }}
